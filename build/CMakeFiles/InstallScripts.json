@@ -1,0 +1,25 @@
+{
+	"InstallScripts" : 
+	[
+		"/home/alejandro/Desktop/E-AGLE/lateral-controller-comprot/build/cmake_install.cmake",
+		"/home/alejandro/Desktop/E-AGLE/lateral-controller-comprot/build/protobuffer/cmake_install.cmake",
+		"/home/alejandro/Desktop/E-AGLE/lateral-controller-comprot/build/external/cmake_install.cmake",
+		"/home/alejandro/Desktop/E-AGLE/lateral-controller-comprot/build/external/serializers/cmake_install.cmake",
+		"/home/alejandro/Desktop/E-AGLE/lateral-controller-comprot/build/external/fmt/cmake_install.cmake",
+		"/home/alejandro/Desktop/E-AGLE/lateral-controller-comprot/build/external/raylib/cmake_install.cmake",
+		"/home/alejandro/Desktop/E-AGLE/lateral-controller-comprot/build/external/raylib/raylib/cmake_install.cmake",
+		"/home/alejandro/Desktop/E-AGLE/lateral-controller-comprot/build/external/raylib/raylib/external/glfw/cmake_install.cmake",
+		"/home/alejandro/Desktop/E-AGLE/lateral-controller-comprot/build/external/raylib/raylib/external/glfw/src/cmake_install.cmake",
+		"/home/alejandro/Desktop/E-AGLE/lateral-controller-comprot/build/external/lib-communication/cmake_install.cmake",
+		"/home/alejandro/Desktop/E-AGLE/lateral-controller-comprot/build/external/lib-communication/external/paho/cmake_install.cmake",
+		"/home/alejandro/Desktop/E-AGLE/lateral-controller-comprot/build/external/lib-communication/external/paho/externals/paho-mqtt-c/cmake_install.cmake",
+		"/home/alejandro/Desktop/E-AGLE/lateral-controller-comprot/build/external/lib-communication/external/paho/externals/paho-mqtt-c/src/cmake_install.cmake",
+		"/home/alejandro/Desktop/E-AGLE/lateral-controller-comprot/build/external/lib-communication/external/paho/include/mqtt/cmake_install.cmake",
+		"/home/alejandro/Desktop/E-AGLE/lateral-controller-comprot/build/external/lib-communication/external/paho/src/cmake_install.cmake",
+		"/home/alejandro/Desktop/E-AGLE/lateral-controller-comprot/build/external/lib-communication/external/paho/cmake/cmake_install.cmake",
+		"/home/alejandro/Desktop/E-AGLE/lateral-controller-comprot/build/external/mqtt-topics/cmake_install.cmake",
+		"/home/alejandro/Desktop/E-AGLE/lateral-controller-comprot/build/libs/cmake_install.cmake",
+		"/home/alejandro/Desktop/E-AGLE/lateral-controller-comprot/build/core/cmake_install.cmake"
+	],
+	"Parallel" : false
+}

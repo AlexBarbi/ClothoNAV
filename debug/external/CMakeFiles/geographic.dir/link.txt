@@ -1,0 +1,2 @@
+/usr/bin/ar qc libgeographic.a CMakeFiles/geographic.dir/geographic/geographic_coordinates.cc.o
+/usr/bin/ranlib libgeographic.a

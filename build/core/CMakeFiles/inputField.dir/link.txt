@@ -1,0 +1,2 @@
+/usr/bin/ar qc libinputField.a CMakeFiles/inputField.dir/src/utils/InputField.cpp.o
+/usr/bin/ranlib libinputField.a

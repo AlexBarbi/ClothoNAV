@@ -1,0 +1,2 @@
+/usr/bin/ar qc libcontroller.a CMakeFiles/controller.dir/src/controller/controller.cpp.o CMakeFiles/controller.dir/src/controller/previewpoint.cpp.o CMakeFiles/controller.dir/src/controller/stanley.cpp.o
+/usr/bin/ranlib libcontroller.a

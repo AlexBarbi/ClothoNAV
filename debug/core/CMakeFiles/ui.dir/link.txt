@@ -1,0 +1,2 @@
+/usr/bin/ar qc libui.a CMakeFiles/ui.dir/src/ui/menu.cpp.o CMakeFiles/ui.dir/src/ui/longitudinal.cpp.o CMakeFiles/ui.dir/src/ui/circuit.cpp.o
+/usr/bin/ranlib libui.a

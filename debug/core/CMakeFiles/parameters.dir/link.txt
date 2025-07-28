@@ -1,0 +1,2 @@
+/usr/bin/ar qc libparameters.a CMakeFiles/parameters.dir/src/parameters/parameters.cpp.o CMakeFiles/parameters.dir/src/pid/pid.cpp.o CMakeFiles/parameters.dir/src/trajectory/trajectory.cpp.o
+/usr/bin/ranlib libparameters.a
