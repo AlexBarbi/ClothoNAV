@@ -62,8 +62,15 @@ int preview_idx;
 int nearest_idx;
 double look_ahead_distance; // Look-ahead distance in meters
 double k_lookahead = 0.5; // Tune as needed
-double base_lookahead = 1.0; // Minimum lookahead distance
+double base_lookahead = 3.0; // Minimum lookahead distance
 Vector2 pp;
+
+G2lib::ClothoidCurve center_spline;
+
+G2lib::ClothoidCurve spline_direction_1;
+G2lib::ClothoidCurve spline_direction_2;
+G2lib::ClothoidCurve spline_direction_3;
+G2lib::ClothoidCurve spline_direction_4;
 
 // =====================
 // PID parameters & functions

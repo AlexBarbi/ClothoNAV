@@ -95,6 +95,13 @@ extern double k_lookahead;
 extern double base_lookahead;
 extern Vector2 pp;
 
+extern G2lib::ClothoidCurve center_spline;
+
+extern G2lib::ClothoidCurve spline_direction_1;
+extern G2lib::ClothoidCurve spline_direction_2;
+extern G2lib::ClothoidCurve spline_direction_3;
+extern G2lib::ClothoidCurve spline_direction_4;
+
 // =====================
 // PID parameters & functions
 // =====================
@@ -159,8 +166,8 @@ class Wheel {
 void menu(std::string &vehicleId, SimulationType &mode, bool &saveandclose);
 void longitudinal(class Communication &communication, struct TelemetryData &telemetryData, std::string &vehicleId, 
   SimulationType &mode, enum State &currentState, PID &pid);
-void circuit(const std::string cones_csv, const std::vector<CenterlinePoint> centerline, 
-            const TelemetryData &telemetryData, Camera2D &camera, class Communication &communication);
+void circuit(const std::string cones_csv, const TelemetryData &telemetryData, 
+              Camera2D &camera, class Communication &communication);
 
 // Utility functions
 void sinusoidalSpeed();

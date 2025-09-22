@@ -155,7 +155,7 @@ int main(void) {
               longitudinal(communication, telemetryData, vehicleIdName, mode, currentState, pid);
               break;
           case CIRCUIT:
-              circuit(cones_csv, centerline, telemetryData, camera, communication);
+              circuit(cones_csv, telemetryData, camera, communication);
               break;
       }
 

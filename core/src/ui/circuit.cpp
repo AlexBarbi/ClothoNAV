@@ -10,8 +10,8 @@
 #include <string>
 #include <Eigen/Dense>
 
-void circuit(const std::string cones_csv, const std::vector<CenterlinePoint> centerline, 
-            const TelemetryData &telemetryData, Camera2D &camera, class Communication &communication) {
+void circuit(const std::string cones_csv, const TelemetryData &telemetryData, 
+              Camera2D &camera, class Communication &communication) {
   ClearBackground(BLACK);
   static bool followCar = false;
   static double scaleFactor = 0.5;
@@ -63,9 +63,43 @@ void circuit(const std::string cones_csv, const std::vector<CenterlinePoint> cen
   //     DrawText(v_final_str, mToPixels((pt.x + 10) * scaleFactor), -mToPixels((pt.y + 10) * scaleFactor), 5, WHITE);
   // }
 
-  // Draw sampled points from ClothoidList
-  for (const auto& pt : samplePoints) {
-      DrawCircle(mToPixels((pt.x - meanSampleX) * scaleFactor), -mToPixels((pt.y - meanSampleY) * scaleFactor), 2, GREEN);
+  // Draw center_spline (discretizzata in 50 punti, colore CYAN)
+  int N = 50;
+  double len = center_spline.length();
+  for (int i = 0; i < N; ++i) {
+      double s = i * len / (N - 1);
+      real_type x, y;
+      center_spline.eval(s, x, y);
+      DrawCircle(mToPixels((x - meanSampleX) * scaleFactor), -mToPixels((y - meanSampleY) * scaleFactor), 2, SKYBLUE);
+  }
+
+  double len1 = spline_direction_1.length();
+  for (int i = 0; i < N; ++i) {
+      double s = i * len1 / (N - 1);
+      real_type x, y;
+      spline_direction_1.eval(s, x, y);
+      DrawCircle(mToPixels((x - meanSampleX) * scaleFactor), -mToPixels((y - meanSampleY) * scaleFactor), 0.5, ORANGE);
+  }
+  double len2 = spline_direction_2.length();
+  for (int i = 0; i < N; ++i) {
+      double s = i * len2 / (N - 1);  
+      real_type x, y;
+      spline_direction_2.eval(s, x, y);
+      DrawCircle(mToPixels((x - meanSampleX) * scaleFactor), -mToPixels((y - meanSampleY) * scaleFactor), 0.5, ORANGE);
+  }
+  double len3 = spline_direction_3.length();
+  for (int i = 0; i < N; ++i) {
+      double s = i * len3 / (N - 1);  
+      real_type x, y;
+      spline_direction_3.eval(s, x, y);
+      DrawCircle(mToPixels((x - meanSampleX) * scaleFactor), -mToPixels((y - meanSampleY) * scaleFactor), 0.5, ORANGE);
+  }
+  double len4 = spline_direction_4.length();
+  for (int i = 0; i < N; ++i) {
+      double s = i * len4 / (N - 1);  
+      real_type x, y;
+      spline_direction_4.eval(s, x, y);
+      DrawCircle(mToPixels((x - meanSampleX) * scaleFactor), -mToPixels((y - meanSampleY) * scaleFactor), 0.5, ORANGE);
   }
 
   // Draw left cones as yellow circles
@@ -77,6 +111,16 @@ void circuit(const std::string cones_csv, const std::vector<CenterlinePoint> cen
   for (const auto& cone : right_cones) {
       DrawCircle(mToPixels((cone.x() - meanSampleX) * scaleFactor), -mToPixels((cone.y() - meanSampleY) * scaleFactor), 2, YELLOW);
   }
+
+  // Draw steering direction vector from car position
+  double car_x = telemetryData.vehicleState.x - shiftFactorX - meanSampleX;
+  double car_y = telemetryData.vehicleState.y - shiftFactorY - meanSampleY;
+  double vector_length = 100.0; // lunghezza in pixel
+  double angle = telemetryData.vehicleState.heading + delta * DEG2RAD; // delta deve essere in radianti
+  double vec_x = car_x + std::cos(angle) * vector_length / mToPixels(1.0);
+  double vec_y = car_y + std::sin(angle) * vector_length / mToPixels(1.0);
+  DrawLine(mToPixels(car_x * scaleFactor), -mToPixels(car_y * scaleFactor),
+           mToPixels(vec_x * scaleFactor), -mToPixels(vec_y * scaleFactor), RED);
 
   EndMode2D();
 

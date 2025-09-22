@@ -390,9 +390,11 @@ double getNearestIdx(double s) {
     return idx;
 }
 
-PPOutput computeSteeringAngleClothoids(const ClothoidList& clothoidList, double x, double y, double heading, double lookahead, double u) {
+double computeSteeringAngleClothoids(const ClothoidList& clothoidList, double x, double y, double heading, double lookahead, double u) {
     // Trova il punto più vicino sulla spline
-    ClosestPoint cp = getClosestPointInRange(x, y, 0, 5.0); // range arbitrario, puoi adattare
+    ClosestPoint cp;
+    clothoidList.closest_point_ISO(x, y, cp.x, cp.y, cp.s, cp.t, cp.dst);
+    // ClosestPoint cp = getClosestPointInRange(x, y, 0, 5.0); // range arbitrario, puoi adattare
     double s_start = cp.s;
     double s_end = s_start + lookahead;
     double track_length = clothoidList.length();
@@ -406,14 +408,30 @@ PPOutput computeSteeringAngleClothoids(const ClothoidList& clothoidList, double 
     }
 
     // Seleziona solo il center_point (punto centrale della wayline)
-    Point center_point = horizon_points[50]; // 50 è il centro di 0..99
+    Point center_point = horizon_points[50];
+    
+    Point direction_1 = horizon_points[0];
+    Point direction_2 = horizon_points[25];
+    Point direction_3 = horizon_points[75];
+    Point direction_4 = horizon_points[99];
 
     // Calcola la clotoide G1 tra la posizione della macchina e il center_point
-    double theta1 = std::atan2(horizon_points[51].y - center_point.y, horizon_points[51].x - center_point.x); // direzione locale
-    G2lib::ClothoidCurve* center_spline = new G2lib::ClothoidCurve();
-    center_spline->build_G1(x, y, heading, center_point.x, center_point.y, theta1);
+    double theta = std::atan2(horizon_points[51].y - center_point.y, horizon_points[51].x - center_point.x); // direzione locale
+    
+    double theta1 = std::atan2(horizon_points[1].y - direction_1.y, horizon_points[1].x - direction_1.x);
+    double theta2 = std::atan2(horizon_points[26].y - direction_2.y, horizon_points[26].x - direction_2.x);
+    double theta3 = std::atan2(horizon_points[76].y - direction_3.y, horizon_points[76].x - direction_3.x);
+    double theta4 = std::atan2(horizon_points[98].y - direction_4.y, horizon_points[98].x - direction_4.x);
+    
+    // G2lib::ClothoidCurve* center_spline = new G2lib::ClothoidCurve();
+    center_spline.build_G1(x, y, heading, center_point.x, center_point.y, theta);
 
-    double rho = center_spline->kappa(0) + center_spline->dkappa(0) * center_spline->length();
+    spline_direction_1.build_G1(x, y, heading, direction_1.x, direction_1.y, theta1);
+    spline_direction_2.build_G1(x, y, heading, direction_2.x, direction_2.y, theta2);
+    spline_direction_3.build_G1(x, y, heading, direction_3.x, direction_3.y, theta3);
+    spline_direction_4.build_G1(x, y, heading, direction_4.x, direction_4.y, theta4);
+
+    double rho = center_spline.kappa_begin() + center_spline.dkappa() * center_spline.length();
 
     double ay = rho * u * u;
     double K_us = 1.0; // TODO: tuning
@@ -439,15 +457,21 @@ void handleTrajectory(Communication& communication, const TelemetryData& telemet
     look_ahead_distance = k_lookahead * velocity + base_lookahead;
 
     // PPOutput output = computeSteeringAngle(centerline, pos_x, pos_y, telemetryData.vehicleState.heading, look_ahead_distance);
-    PPOutput output = computeSteeringAngleClothoids(clothoidList, pos_x, pos_y, telemetryData.vehicleState.heading, 
-                                                    look_ahead_distance, telemetryData.vehicleState.u);
-    currentDesiredSpeed = output.v_target;
+    // PPOutput output = computeSteeringAngleClothoids(clothoidList, pos_x, pos_y, telemetryData.vehicleState.heading, 
+                                                    // look_ahead_distance, telemetryData.vehicleState.u);
+
+    double output = computeSteeringAngleClothoids(clothoidList, pos_x, pos_y, telemetryData.vehicleState.heading, 
+                                                    look_ahead_distance, telemetryData.vehicleState.u); 
+
+    // currentDesiredSpeed = output.v_target;
+    currentDesiredSpeed = 2.0; // TODO: set a fixed target speed for testing
     PIDParams params = getPIDParamsForSpeed(telemetryData.vehicleState.u);
     pid.updateParams(params, throttle_power, brake_power);
     pidOutput = pid.calculate(currentDesiredSpeed, telemetryData.vehicleState.u);
 
     speed = pidOutput;
-    delta = output.angle;
+    // delta = output.angle;
+    delta = -output;
     // std::cout << "Steering angle: " << delta << " Speed: " << speed << std::endl;
     // std::cout << "Current heading: " << telemetryData.vehicleState.heading * RAD2DEG << std::endl;
 
