@@ -1,4 +1,0 @@
-# Hashes of file build rules.
-7b23ef8e1a2e0ba9e1932c8c30228034 /home/alejandro/Desktop/E-AGLE/lateral-controller-comprot/.generated/external/serializers/proto/actions/command.pb.cc
-312c6a0887722807267435ebcd82f164 CMakeFiles/proto_generation
-fbdcdc7d92c4e8ecfea20e884120975f external/raylib/raylib/external/glfw/src/CMakeFiles/update_mappings

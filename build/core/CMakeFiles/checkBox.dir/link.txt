@@ -1,2 +1,0 @@
-/usr/bin/ar qc libcheckBox.a CMakeFiles/checkBox.dir/src/utils/CheckBox.cpp.o
-/usr/bin/ranlib libcheckBox.a

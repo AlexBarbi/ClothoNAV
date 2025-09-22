@@ -1,2 +1,0 @@
-/usr/bin/ar qc libmap.a CMakeFiles/map.dir/src/map/map.cpp.o CMakeFiles/map.dir/src/map/spline.cpp.o
-/usr/bin/ranlib libmap.a

@@ -391,65 +391,30 @@ double getNearestIdx(double s) {
 }
 
 PPOutput computeSteeringAngleClothoids(const ClothoidList& clothoidList, double x, double y, double heading, double lookahead) {
-    Vector2 rearAxle = {x, y};
-
-    double Lf = lookahead;
-
-    double xAxisHeading = heading;
-
-    lookAheadPoint = {static_cast<float>(rearAxle.x + Lf * cos(xAxisHeading)),
-                      static_cast<float>(rearAxle.y + Lf * sin(xAxisHeading))};
-
-    ClosestPoint point = getClosestPointInRange(
-        lookAheadPoint.x, lookAheadPoint.y, prevS, Lf * 0.2);
-
-    pp = {static_cast<float>(point.x), static_cast<float>(point.y)};
-    float ndst = Vector2Distance(pp, pointOnTrack);
-
-    if (ndst > 0.1 * lookahead)
-    {
-        Point p = getPoint(point.s + 0.2);
-        pp = {static_cast<float>(p.x), static_cast<float>(p.y)};
+    // Trova il punto più vicino sulla spline
+    ClosestPoint cp = getClosestPointInRange(x, y, 0, 5.0); // range arbitrario, puoi adattare
+    double s_start = cp.s;
+    double s_end = s_start + lookahead;
+    double track_length = clothoidList.length();
+    if (s_end > track_length) s_end = track_length;
+    // Discretizza la wayline horizon in 100 punti
+    std::vector<Point> horizon_points;
+    for (int i = 0; i < 100; ++i) {
+        double s_i = s_start + (s_end - s_start) * i / 99.0;
+        if (s_i > track_length) s_i -= track_length;
+        horizon_points.push_back(getPoint(s_i));
     }
+    // Seleziona solo il center_point (punto centrale della wayline)
+    Point center_point = horizon_points[50]; // 50 è il centro di 0..99
+    // Calcola la clotoide dalla posizione della macchina al center_point
+    ClothoidCurve center_clothoid;
+    double kappa0 = 0.0; // curvatura iniziale
+    double dkappa = 0.0; // variazione di curvatura
+    center_clothoid.build(x, y, heading, center_point.x, center_point.y, kappa0, dkappa);
 
-    pointOnTrack = pp;
-
-    double a = Vector2Angle(
-        {lookAheadPoint.y - rearAxle.y, lookAheadPoint.x - rearAxle.x},
-        {pointOnTrack.y - rearAxle.y, pointOnTrack.x - rearAxle.x});
-
-    std::cout << "Angle to point: " << a * RAD2DEG << std::endl;
-    if (a < 0)
-    {
-        point.dst = -point.dst;
-    };
-
-    double angle = (clothoidList.theta(point.s) - (heading));
-
-    if (angle < -PI)
-    {
-        angle += 2 * PI;
-    }
-    else if (angle > PI)
-    {
-        angle -= 2 * PI;
-    }
-
-    double delta = Ke * point.dst - Kt * angle;
-
-    prevS = point.s;
-
-    std::cout << "====================" << std::endl;
-    std::cout << "delta: " << delta * RAD2DEG << std::endl;
-    std::cout << "dst: " << point.dst << std::endl;
-    std::cout << "angle: " << angle * RAD2DEG << " -- Track Heading: " << clothoidList.theta(point.s) * RAD2DEG
-              << " -- Car heading: " << heading * RAD2DEG << std::endl;
-    std::cout << "====================" << std::endl << std::endl;
-
-    nearest_idx = getNearestIdx(point.s);
-    double v_target = v_profile[nearest_idx];
-
-    PPOutput output{delta * RAD2DEG, v_target};
+    // Puoi ora usare la clotoide per calcolare l'angolo di sterzata, preview, ecc.
+    // Placeholder: restituisci un output fittizio
+    PPOutput output{0.0, 1.0};
     return output;
 }
 

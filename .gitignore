@@ -1,2 +1,22 @@
 *.cmake
 .generated/
+debug/
+build/
+
+# File da ignorare
+*.Dotsettings
+*.log
+
+# File oggetto e compilati
+*.o
+*.a
+*.so
+*.dylib
+
+# File generati da CMake
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+
+cmake-build-debug/

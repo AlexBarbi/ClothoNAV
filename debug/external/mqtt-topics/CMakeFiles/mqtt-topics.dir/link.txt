@@ -1,2 +1,0 @@
-/usr/bin/ar qc libmqtt-topics.a "CMakeFiles/mqtt-topics.dir/src/topics.cpp.o" "CMakeFiles/mqtt-topics.dir/src/message_parser.cpp.o"
-/usr/bin/ranlib libmqtt-topics.a
