@@ -390,7 +390,7 @@ double getNearestIdx(double s) {
     return idx;
 }
 
-PPOutput computeSteeringAngleClothoids(const ClothoidList& clothoidList, double x, double y, double heading, double lookahead) {
+PPOutput computeSteeringAngleClothoids(const ClothoidList& clothoidList, double x, double y, double heading, double lookahead, double u) {
     // Trova il punto più vicino sulla spline
     ClosestPoint cp = getClosestPointInRange(x, y, 0, 5.0); // range arbitrario, puoi adattare
     double s_start = cp.s;
@@ -404,18 +404,22 @@ PPOutput computeSteeringAngleClothoids(const ClothoidList& clothoidList, double 
         if (s_i > track_length) s_i -= track_length;
         horizon_points.push_back(getPoint(s_i));
     }
+
     // Seleziona solo il center_point (punto centrale della wayline)
     Point center_point = horizon_points[50]; // 50 è il centro di 0..99
-    // Calcola la clotoide dalla posizione della macchina al center_point
-    ClothoidCurve center_clothoid;
-    double kappa0 = 0.0; // curvatura iniziale
-    double dkappa = 0.0; // variazione di curvatura
-    center_clothoid.build(x, y, heading, center_point.x, center_point.y, kappa0, dkappa);
 
-    // Puoi ora usare la clotoide per calcolare l'angolo di sterzata, preview, ecc.
-    // Placeholder: restituisci un output fittizio
-    PPOutput output{0.0, 1.0};
-    return output;
+    // Calcola la clotoide G1 tra la posizione della macchina e il center_point
+    double theta1 = std::atan2(horizon_points[51].y - center_point.y, horizon_points[51].x - center_point.x); // direzione locale
+    G2lib::ClothoidCurve* center_spline = new G2lib::ClothoidCurve();
+    center_spline->build_G1(x, y, heading, center_point.x, center_point.y, theta1);
+
+    double rho = center_spline->kappa(0) + center_spline->dkappa(0) * center_spline->length();
+
+    double ay = rho * u * u;
+    double K_us = 1.0; // TODO: tuning
+    double akermann_angle = rho * L + K_us * ay;
+
+    return akermann_angle;
 }
 
 void handleTrajectory(Communication& communication, const TelemetryData& telemetryData, PID& pid, double& speed) {
@@ -435,7 +439,8 @@ void handleTrajectory(Communication& communication, const TelemetryData& telemet
     look_ahead_distance = k_lookahead * velocity + base_lookahead;
 
     // PPOutput output = computeSteeringAngle(centerline, pos_x, pos_y, telemetryData.vehicleState.heading, look_ahead_distance);
-    PPOutput output = computeSteeringAngleClothoids(clothoidList, pos_x, pos_y, telemetryData.vehicleState.heading, look_ahead_distance);
+    PPOutput output = computeSteeringAngleClothoids(clothoidList, pos_x, pos_y, telemetryData.vehicleState.heading, 
+                                                    look_ahead_distance, telemetryData.vehicleState.u);
     currentDesiredSpeed = output.v_target;
     PIDParams params = getPIDParamsForSpeed(telemetryData.vehicleState.u);
     pid.updateParams(params, throttle_power, brake_power);
