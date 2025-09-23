@@ -134,7 +134,7 @@ void CreateClothoidListFromCones(const std::vector<Eigen::Vector2d>& left_cones,
         real_type y = 0.5 * (left_cones[i].y() + right_cones[i].y());
         x_center.push_back(x);
         y_center.push_back(y);
-        std::cout << "Centerline point " << i << ": (" << x_center[i] << ", " << y_center[i] << ")" << std::endl;
+        // std::cout << "Centerline point " << i << ": (" << x_center[i] << ", " << y_center[i] << ")" << std::endl;
     }
 
     // ClothoidList cl = new ClothoidList();
@@ -153,7 +153,7 @@ void CalculateVelocityProfile(std::vector<CenterlinePoint>& centerline) {
             pt.v_final = v_max;
             prev_speed = pt.v_final;
         }
-        std::cout << "v_final: " << pt.v_final << std::endl;
+        // std::cout << "v_final: " << pt.v_final << std::endl;
     }
 }
 
@@ -184,7 +184,7 @@ void CalculateVelocityProfileFromClothoidList() {
             v_profile.push_back(v_max);
             prev_speed = v_max;
         }
-        std::cout << "v_final: " << prev_speed << std::endl;
+        // std::cout << "v_final: " << prev_speed << std::endl;
     }
 
     sampledPoints();

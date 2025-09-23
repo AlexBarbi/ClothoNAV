@@ -70,47 +70,63 @@ void circuit(const std::string cones_csv, const TelemetryData &telemetryData,
       double s = i * len / (N - 1);
       real_type x, y;
       center_spline.eval(s, x, y);
-      DrawCircle(mToPixels((x - meanSampleX) * scaleFactor), -mToPixels((y - meanSampleY) * scaleFactor), 2, SKYBLUE);
+      DrawCircle(mToPixels((x - meanSampleX) * scaleFactor), -mToPixels((y - meanSampleY) * scaleFactor), 1.5, SKYBLUE);
   }
 
-  double len1 = spline_direction_1.length();
+  // double len1 = spline_direction_1.length();
+  // for (int i = 0; i < N; ++i) {
+  //     double s = i * len1 / (N - 1);
+  //     real_type x, y;
+  //     spline_direction_1.eval(s, x, y);
+  //     DrawCircle(mToPixels((x - meanSampleX) * scaleFactor), -mToPixels((y - meanSampleY) * scaleFactor), 0.5, ORANGE);
+  // }
+  // double len2 = spline_direction_2.length();
+  // for (int i = 0; i < N; ++i) {
+  //     double s = i * len2 / (N - 1);  
+  //     real_type x, y;
+  //     spline_direction_2.eval(s, x, y);
+  //     DrawCircle(mToPixels((x - meanSampleX) * scaleFactor), -mToPixels((y - meanSampleY) * scaleFactor), 0.5, ORANGE);
+  // }
+  // double len3 = spline_direction_3.length();
+  // for (int i = 0; i < N; ++i) {
+  //     double s = i * len3 / (N - 1);  
+  //     real_type x, y;
+  //     spline_direction_3.eval(s, x, y);
+  //     DrawCircle(mToPixels((x - meanSampleX) * scaleFactor), -mToPixels((y - meanSampleY) * scaleFactor), 0.5, ORANGE);
+  // }
+  // double len4 = spline_direction_4.length();
+  // for (int i = 0; i < N; ++i) {
+  //     double s = i * len4 / (N - 1);  
+  //     real_type x, y;
+  //     spline_direction_4.eval(s, x, y);
+  //     DrawCircle(mToPixels((x - meanSampleX) * scaleFactor), -mToPixels((y - meanSampleY) * scaleFactor), 0.5, ORANGE);
+  // }
+  N = 10000;
+  double len_left = spline_l.length();
   for (int i = 0; i < N; ++i) {
-      double s = i * len1 / (N - 1);
+      double s = i * len_left / (N - 1);
       real_type x, y;
-      spline_direction_1.eval(s, x, y);
-      DrawCircle(mToPixels((x - meanSampleX) * scaleFactor), -mToPixels((y - meanSampleY) * scaleFactor), 0.5, ORANGE);
-  }
-  double len2 = spline_direction_2.length();
-  for (int i = 0; i < N; ++i) {
-      double s = i * len2 / (N - 1);  
-      real_type x, y;
-      spline_direction_2.eval(s, x, y);
-      DrawCircle(mToPixels((x - meanSampleX) * scaleFactor), -mToPixels((y - meanSampleY) * scaleFactor), 0.5, ORANGE);
-  }
-  double len3 = spline_direction_3.length();
-  for (int i = 0; i < N; ++i) {
-      double s = i * len3 / (N - 1);  
-      real_type x, y;
-      spline_direction_3.eval(s, x, y);
-      DrawCircle(mToPixels((x - meanSampleX) * scaleFactor), -mToPixels((y - meanSampleY) * scaleFactor), 0.5, ORANGE);
-  }
-  double len4 = spline_direction_4.length();
-  for (int i = 0; i < N; ++i) {
-      double s = i * len4 / (N - 1);  
-      real_type x, y;
-      spline_direction_4.eval(s, x, y);
-      DrawCircle(mToPixels((x - meanSampleX) * scaleFactor), -mToPixels((y - meanSampleY) * scaleFactor), 0.5, ORANGE);
+      spline_l.eval(s, x, y);
+      DrawCircle(mToPixels((x - meanSampleX) * scaleFactor), -mToPixels((y - meanSampleY) * scaleFactor), 0.5, BLUE);
   }
 
   // Draw left cones as yellow circles
-  for (const auto& cone : left_cones) {
-      DrawCircle(mToPixels((cone.x() - meanSampleX) * scaleFactor), -mToPixels((cone.y() - meanSampleY) * scaleFactor), 2, BLUE);
+  // for (const auto& cone : left_cones) {
+  //     DrawCircle(mToPixels((cone.x() - meanSampleX) * scaleFactor), -mToPixels((cone.y() - meanSampleY) * scaleFactor), 2, BLUE);
+  // }
+
+  double len_right = spline_r.length();
+  for (int i = 0; i < N; ++i) {
+      double s = i * len_right / (N - 1);
+      real_type x, y;
+      spline_r.eval(s, x, y);
+      DrawCircle(mToPixels((x - meanSampleX) * scaleFactor), -mToPixels((y - meanSampleY) * scaleFactor), 0.5, YELLOW);
   }
 
   // Draw right cones as green circles
-  for (const auto& cone : right_cones) {
-      DrawCircle(mToPixels((cone.x() - meanSampleX) * scaleFactor), -mToPixels((cone.y() - meanSampleY) * scaleFactor), 2, YELLOW);
-  }
+  // for (const auto& cone : right_cones) {
+  //     DrawCircle(mToPixels((cone.x() - meanSampleX) * scaleFactor), -mToPixels((cone.y() - meanSampleY) * scaleFactor), 2, YELLOW);
+  // }
 
   // Draw steering direction vector from car position
   double car_x = telemetryData.vehicleState.x - shiftFactorX - meanSampleX;
@@ -121,6 +137,14 @@ void circuit(const std::string cones_csv, const TelemetryData &telemetryData,
   double vec_y = car_y + std::sin(angle) * vector_length / mToPixels(1.0);
   DrawLine(mToPixels(car_x * scaleFactor), -mToPixels(car_y * scaleFactor),
            mToPixels(vec_x * scaleFactor), -mToPixels(vec_y * scaleFactor), RED);
+
+  // Draw car heading vector (in GREEN)
+  double heading_length = 100.0;
+  double heading_angle = telemetryData.vehicleState.heading;
+  double heading_x = car_x + std::cos(heading_angle) * heading_length / mToPixels(1.0);
+  double heading_y = car_y + std::sin(heading_angle) * heading_length / mToPixels(1.0);
+  DrawLine(mToPixels(car_x * scaleFactor), -mToPixels(car_y * scaleFactor),
+           mToPixels(heading_x * scaleFactor), -mToPixels(heading_y * scaleFactor), GREEN);
 
   EndMode2D();
 

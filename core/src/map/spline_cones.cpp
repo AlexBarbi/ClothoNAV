@@ -1,6 +1,8 @@
 #include "spline_cones.hpp"
 #include "Clothoids.hh"
 #include "map.hpp"
+#include "parameters/parameters.hpp"
+#include <Eigen/Dense>
 #include <vector>
 
 struct CurvilinearPosition {
@@ -31,13 +33,20 @@ class VehicleCurvilinear {
     }
 };
 
-ClothoidList* SplineCones::buildSplineFromCones(const std::vector<Vector2>& cones) {
+void buildSplineFromCones_l(const std::vector<Eigen::Vector2d>& cones) {
     std::vector<real_type> x, y;
     for (const auto& cone : cones) {
-        x.push_back(cone.x);
-        y.push_back(cone.y);
+        x.push_back(cone.x());
+        y.push_back(cone.y());
     }
-    ClothoidList* cl = new ClothoidList();
-    cl->build_G1(x.size(), &x[0], &y[0]);
-    return cl;
+    spline_l.build_G1(x.size(), &x[0], &y[0]);
+}
+
+void buildSplineFromCones_r(const std::vector<Eigen::Vector2d>& cones) {
+    std::vector<real_type> x, y;
+    for (const auto& cone : cones) {
+        x.push_back(cone.x());
+        y.push_back(cone.y());
+    }
+    spline_r.build_G1(x.size(), &x[0], &y[0]);
 }

@@ -120,7 +120,7 @@ bool Communication::sendCommands(double angle, double throttle) {
   } else if (angle < -100) {
     angle = -100;
   }
-  std::cout << "Sending commands: angle = " << angle << ", throttle = " << throttle << std::endl;
+  // std::cout << "Sending commands: angle = " << angle << ", throttle = " << throttle << std::endl;
   driveCommands.steerAngleDegrees = angle;
   if (throttle > 0.0) {
     driveCommands.pedalBrakes = 0.0;

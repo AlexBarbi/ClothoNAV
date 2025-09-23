@@ -31,4 +31,4 @@ PPOutput computeSteeringAngle(const std::vector<CenterlinePoint>& centerline, do
 Point getPoint(const ClothoidList& clothoidList, int idx);
 
 // Compute steering and target velocity using clothoids
-PPOutput computeSteeringAngleClothoids(const ClothoidList& clothoidList, double x, double y, double heading, double lookahead);
+PPOutput computeSteeringAngleClothoids(double x, double y, double heading, double lookahead);

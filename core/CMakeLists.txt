@@ -27,6 +27,7 @@ target_link_libraries(utils PUBLIC raylib)
 
 add_library(map
     ${CDIR}/src/map/map.cpp
+    src/map/spline_cones.cpp
 )
 target_link_libraries(map PRIVATE utils raylib clothoids fmt::fmt)
 
@@ -73,7 +74,7 @@ add_library(ui
     src/ui/circuit.cpp
 )
 target_link_libraries(ui
-    PRIVATE utils button inputField checkBox fmt::fmt raylib map serializers trajectory clothoids
+    PRIVATE utils button inputField checkBox fmt::fmt raylib map serializers trajectory map clothoids
 )
 
 add_executable(main executables/main.cpp)

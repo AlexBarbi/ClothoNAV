@@ -1,10 +1,10 @@
 #pragma once
 #include "Clothoids.hh"
+#include "raylib.h"
+#include <Eigen/Dense>
 #include <vector>
 
 using namespace G2lib;
 
-class SplineCones {
-public:
-    static ClothoidList* buildSplineFromCones(const std::vector<Vector2>& cones);
-};
+void buildSplineFromCones_l(const std::vector<Eigen::Vector2d>& cones);
+void buildSplineFromCones_r(const std::vector<Eigen::Vector2d>& cones);

@@ -97,6 +97,9 @@ extern Vector2 pp;
 
 extern G2lib::ClothoidCurve center_spline;
 
+extern ClothoidList spline_l;
+extern ClothoidList spline_r;
+
 extern G2lib::ClothoidCurve spline_direction_1;
 extern G2lib::ClothoidCurve spline_direction_2;
 extern G2lib::ClothoidCurve spline_direction_3;

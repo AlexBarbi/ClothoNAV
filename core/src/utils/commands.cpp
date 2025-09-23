@@ -62,7 +62,7 @@ void handleLongitudinal(Communication& communication, TelemetryData& telemetryDa
         currentState = STOPPED;
     }
     speed = pidOutput;
-    double angletosend = sin(sindt * frequency) * amplitude;
+    double angletosend = sin(sindt * frequency) * amplitude * 0;
     communication.sendCommands(angletosend, speed); 
 }
 
@@ -390,16 +390,56 @@ double getNearestIdx(double s) {
     return idx;
 }
 
-double computeSteeringAngleClothoids(const ClothoidList& clothoidList, double x, double y, double heading, double lookahead, double u) {
+double computeSteeringAngleClothoids(double x, double y, double heading, double lookahead, double u) {
     // Trova il punto più vicino sulla spline
     ClosestPoint cp;
-    clothoidList.closest_point_ISO(x, y, cp.x, cp.y, cp.s, cp.t, cp.dst);
+    spline_l.closest_point_ISO(x, y, cp.x, cp.y, cp.s, cp.t, cp.dst);
     // ClosestPoint cp = getClosestPointInRange(x, y, 0, 5.0); // range arbitrario, puoi adattare
     double s_start = cp.s;
     double s_end = s_start + lookahead;
-    double track_length = clothoidList.length();
+    double track_length = spline_l.length();
     if (s_end > track_length) s_end = track_length;
+
+    // Trova il punto s_end su spline_l
+    real_type x_l, y_l;
+    spline_l.eval(s_end, x_l, y_l);
+    // Calcola la direzione tangente a spline_l in s_end
+    double theta_l = spline_l.theta(s_end);
+
+    ClosestPoint cp_r;
+    spline_r.closest_point_ISO(x_l, y_l, cp_r.x, cp_r.y, cp_r.s, cp_r.t, cp_r.dst);
+
+    Point center_point = {(x_l + cp_r.x) / 2.0, (y_l + cp_r.y) / 2.0};
+
     // Discretizza la wayline horizon in 100 punti
+    // std::vector<Point> horizon_points;
+    // for (int i = 0; i < 100; ++i) {
+    //     double s_i = s_start + (s_end - s_start) * i / 99.0;
+    //     if (s_i > track_length) s_i -= track_length;
+    //     horizon_points.push_back(getPoint(s_i));
+    // }
+
+    // Seleziona solo il center_point (punto centrale della wayline)
+    // Point center_point = horizon_points[50];
+    
+    // Point direction_1 = horizon_points[0];
+    // Point direction_2 = horizon_points[25];
+    // Point direction_3 = horizon_points[75];
+    // Point direction_4 = horizon_points[99];
+
+    // Calcola la clotoide G1 tra la posizione della macchina e il center_point
+    // double theta = std::atan2(horizon_points[51].y - center_point.y, horizon_points[51].x - center_point.x); // direzione locale
+    double theta = std::atan2(center_point.y - y, center_point.x - x); // direzione globale
+
+    // double theta1 = std::atan2(horizon_points[1].y - direction_1.y, horizon_points[1].x - direction_1.x);
+    // double theta2 = std::atan2(horizon_points[26].y - direction_2.y, horizon_points[26].x - direction_2.x);
+    // double theta3 = std::atan2(horizon_points[76].y - direction_3.y, horizon_points[76].x - direction_3.x);
+    // double theta4 = std::atan2(horizon_points[98].y - direction_4.y, horizon_points[98].x - direction_4.x);
+    
+    // G2lib::ClothoidCurve* center_spline = new G2lib::ClothoidCurve();
+    center_spline.build_G1(x, y, heading, center_point.x, center_point.y, theta_l);
+
+    // Discretizza center_spline in 100 punti
     std::vector<Point> horizon_points;
     for (int i = 0; i < 100; ++i) {
         double s_i = s_start + (s_end - s_start) * i / 99.0;
@@ -407,35 +447,28 @@ double computeSteeringAngleClothoids(const ClothoidList& clothoidList, double x,
         horizon_points.push_back(getPoint(s_i));
     }
 
-    // Seleziona solo il center_point (punto centrale della wayline)
-    Point center_point = horizon_points[50];
+    static G2lib::ClothoidCurve new_centerline;
+    real_type s_intermediate;
     
-    Point direction_1 = horizon_points[0];
-    Point direction_2 = horizon_points[25];
-    Point direction_3 = horizon_points[75];
-    Point direction_4 = horizon_points[99];
+    new_centerline.build_G1(x, y, heading, horizon_points[10].x, horizon_points[10].y, center_spline.theta(center_spline.length() * 0.1));
+    center_spline = new_centerline;
 
-    // Calcola la clotoide G1 tra la posizione della macchina e il center_point
-    double theta = std::atan2(horizon_points[51].y - center_point.y, horizon_points[51].x - center_point.x); // direzione locale
-    
-    double theta1 = std::atan2(horizon_points[1].y - direction_1.y, horizon_points[1].x - direction_1.x);
-    double theta2 = std::atan2(horizon_points[26].y - direction_2.y, horizon_points[26].x - direction_2.x);
-    double theta3 = std::atan2(horizon_points[76].y - direction_3.y, horizon_points[76].x - direction_3.x);
-    double theta4 = std::atan2(horizon_points[98].y - direction_4.y, horizon_points[98].x - direction_4.x);
-    
-    // G2lib::ClothoidCurve* center_spline = new G2lib::ClothoidCurve();
-    center_spline.build_G1(x, y, heading, center_point.x, center_point.y, theta);
+    // spline_direction_1.build_G1(x, y, heading, direction_1.x, direction_1.y, theta1);
+    // spline_direction_2.build_G1(x, y, heading, direction_2.x, direction_2.y, theta2);
+    // spline_direction_3.build_G1(x, y, heading, direction_3.x, direction_3.y, theta3);
+    // spline_direction_4.build_G1(x, y, heading, direction_4.x, direction_4.y, theta4);
+    center_spline.closest_point_ISO(center_point.x, center_point.y, cp.x, cp.y, cp.s, cp.t, cp.dst);
+    // double rho = center_spline.kappa_begin() + center_spline.dkappa() * center_spline.length();
+    double rho = center_spline.kappa_begin() + center_spline.dkappa() * cp.s;
 
-    spline_direction_1.build_G1(x, y, heading, direction_1.x, direction_1.y, theta1);
-    spline_direction_2.build_G1(x, y, heading, direction_2.x, direction_2.y, theta2);
-    spline_direction_3.build_G1(x, y, heading, direction_3.x, direction_3.y, theta3);
-    spline_direction_4.build_G1(x, y, heading, direction_4.x, direction_4.y, theta4);
-
-    double rho = center_spline.kappa_begin() + center_spline.dkappa() * center_spline.length();
 
     double ay = rho * u * u;
-    double K_us = 1.0; // TODO: tuning
+    double K_us = 0.1; // TODO: tuning
     double akermann_angle = rho * L + K_us * ay;
+    double kk = 0.1; // TODO: tuning
+    real_type x_new, y_new;
+    center_spline.eval(s_end, x_new, y_new);
+    akermann_angle -= kk  * (x - x_new);
 
     return akermann_angle;
 }
@@ -460,18 +493,18 @@ void handleTrajectory(Communication& communication, const TelemetryData& telemet
     // PPOutput output = computeSteeringAngleClothoids(clothoidList, pos_x, pos_y, telemetryData.vehicleState.heading, 
                                                     // look_ahead_distance, telemetryData.vehicleState.u);
 
-    double output = computeSteeringAngleClothoids(clothoidList, pos_x, pos_y, telemetryData.vehicleState.heading, 
+    double output = computeSteeringAngleClothoids(pos_x, pos_y, telemetryData.vehicleState.heading, 
                                                     look_ahead_distance, telemetryData.vehicleState.u); 
 
     // currentDesiredSpeed = output.v_target;
-    currentDesiredSpeed = 2.0; // TODO: set a fixed target speed for testing
+    currentDesiredSpeed = 5.0; // TODO: set a fixed target speed for testing
     PIDParams params = getPIDParamsForSpeed(telemetryData.vehicleState.u);
     pid.updateParams(params, throttle_power, brake_power);
     pidOutput = pid.calculate(currentDesiredSpeed, telemetryData.vehicleState.u);
 
     speed = pidOutput;
     // delta = output.angle;
-    delta = -output;
+    delta = output;
     // std::cout << "Steering angle: " << delta << " Speed: " << speed << std::endl;
     // std::cout << "Current heading: " << telemetryData.vehicleState.heading * RAD2DEG << std::endl;
 

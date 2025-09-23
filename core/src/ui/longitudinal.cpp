@@ -8,6 +8,7 @@
 #include "utils/CheckBox.hpp"
 #include "utils/utils.hpp"
 #include "trajectory/trajectory.h"
+#include "map/spline_cones.hpp"
 #include "raylib.h"
 #include <vector>
 #include <string>
@@ -536,6 +537,11 @@ void longitudinal(class Communication &communication, struct TelemetryData &tele
       // ClothoidList
       CreateClothoidListFromCones(left_cones, right_cones);
       CalculateVelocityProfileFromClothoidList();
+      
+      buildSplineFromCones_l(left_cones);
+      buildSplineFromCones_r(right_cones);
+
+
     }
   );
 
