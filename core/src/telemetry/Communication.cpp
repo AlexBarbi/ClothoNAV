@@ -115,10 +115,10 @@ bool Communication::sendStatus(const Serializers::Data::ASStatus& status) {
 
 bool Communication::sendCommands(double angle, double throttle) {
   Serializers::Data::ASCommands driveCommands;
-  if (angle > 100) {
-    angle = 100;
-  } else if (angle < -100) {
-    angle = -100;
+  if (angle > 90) {
+    angle = 90;
+  } else if (angle < -90) {
+    angle = -90;
   }
   // std::cout << "Sending commands: angle = " << angle << ", throttle = " << throttle << std::endl;
   driveCommands.steerAngleDegrees = angle;
@@ -189,7 +189,7 @@ void Communication::setInitialState() {
   initialState.y = 0.0;
   initialState.u = 0.0;
   initialState.v = 0.0;
-  initialState.heading = M_PI / 2.0;;
+  initialState.heading = M_PI / 2.0;
 
   // Send initial state to the simulator
   this->connection.send(

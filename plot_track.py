@@ -1,35 +1,39 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 
-# Carica il CSV
-df = pd.read_csv('cones_abs.csv')
+df = pd.read_csv('cones2.csv')
 
-# Crea DataFrame per i coni sinistri
 left = pd.DataFrame({
     'id': 0,
     'x': df[df['id'] == 0]['x'],
     'y': df[df['id'] == 0]['y']
 })
 
-# Crea DataFrame per i coni destri
 right = pd.DataFrame({
-    'id': 4,
-    'x': df[df['id'] == 4]['x'],
-    'y': df[df['id'] == 4]['y']
+    'id': 1,
+    'x': df[df['id'] == 1]['x'],
+    'y': df[df['id'] == 1]['y']
 })
 
-# Unisci e salva
 df = pd.concat([left, right], ignore_index=True)
 
-# Salva il DataFrame unito in un nuovo CSV
-# df.to_csv('cones2.csv', index=False)
-# Crea il grafico
-plt.figure(figsize=(10, 6))
-plt.scatter(df['x'], df['y'], c=df['id'], cmap='coolwarm', alpha=0.6, edgecolors='w')
+fig, ax = plt.subplots(figsize=(10, 6))
+sc = ax.scatter(df['x'], df['y'], c=df['id'], cmap='coolwarm', alpha=0.6, edgecolors='w')
 plt.title('Track Cones')
 plt.xlabel('X Coordinate')
 plt.ylabel('Y Coordinate')
 plt.grid(True)
-plt.colorbar(label='Cone Type (0: Left, 1: Right)')
+plt.colorbar(sc, label='Cone Type (0: Left, 1: Right)')
+
+def on_click(event):
+    if event.inaxes == ax:
+        # Trova il punto più vicino al click
+        distances = ((df['x'] - event.xdata)**2 + (df['y'] - event.ydata)**2)
+        idx = distances.idxmin()
+        x, y = df.loc[idx, ['x', 'y']]
+        print(f"Selected point: x={x}, y={y}")
+        ax.plot(x, y, 'o', color='black', markersize=10)
+        fig.canvas.draw()
+
+fig.canvas.mpl_connect('button_press_event', on_click)
 plt.show()
-plt.close()

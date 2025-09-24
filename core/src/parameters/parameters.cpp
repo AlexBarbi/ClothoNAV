@@ -61,8 +61,8 @@ double F_ymax = 1.5 * 9.81 * m; // Maximum lateral force
 int preview_idx;
 int nearest_idx;
 double look_ahead_distance; // Look-ahead distance in meters
-double k_lookahead = 1.0; // Tune as needed
-double base_lookahead = 10.0; // Minimum lookahead distance
+double k_lookahead = 0.0; // Tune as needed
+double base_lookahead = 5.0; // Minimum lookahead distance
 Vector2 pp;
 
 G2lib::ClothoidCurve center_spline;
