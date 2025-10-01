@@ -390,25 +390,25 @@ double getNearestIdx(double s) {
     return idx;
 }
 
-double computeSteeringAngleClothoids(double x, double y, double heading, double lookahead, double u) {
+double computeSteeringAngleClothoids(double x, double y, double heading, double lookahead, double u, double v) {
 
     // Trova il punto più vicino sulla spline
     ClosestPoint cp;
-    spline_l.closest_point_ISO(x, y, cp.x, cp.y, cp.s, cp.t, cp.dst);
+    spline_r.closest_point_ISO(x, y, cp.x, cp.y, cp.s, cp.t, cp.dst);
     double s_start = cp.s;
     double s_end = s_start + lookahead;
     // std::cout << "Closest point s: " << s_start << " lookahead: " << lookahead << " s_end: " << s_end << std::endl;
-    double track_length = spline_l.length();
+    double track_length = spline_r.length();
     if (s_end > track_length) s_end = track_length;
 
     // Trova il punto s_end su spline_l
     real_type x_l, y_l;
-    spline_l.eval(s_end, x_l, y_l);
-    
+    spline_r.eval(s_end, x_l, y_l);
+
     // Calcola la direzione tangente a spline_l in s_end
     
     ClosestPoint cp_r;
-    spline_r.closest_point_ISO(x_l, y_l, cp_r.x, cp_r.y, cp_r.s, cp_r.t, cp_r.dst);
+    spline_l.closest_point_ISO(x_l, y_l, cp_r.x, cp_r.y, cp_r.s, cp_r.t, cp_r.dst);
     
     Point center_point = {(x_l + cp_r.x) / 2.0, (y_l + cp_r.y) / 2.0};
     
@@ -417,55 +417,79 @@ double computeSteeringAngleClothoids(double x, double y, double heading, double 
     // Point direction_3 = {(center_point.x + cp_r.x) / 2.0, (center_point.y + cp_r.y) / 2.0};
     // Point direction_4 = {cp_r.x, cp_r.y};
     
-    double theta_start = spline_l.theta(s_start);
-    double theta_end = spline_l.theta(s_end);
+    double theta_start = spline_r.theta(s_start);
+    double theta_end = spline_r.theta(s_end);
+
+    // if (theta_start > M_PI_2) {
+    //     theta_start = M_PI_2;
+    // } else if (theta_start < -M_PI_2) {
+    //     theta_start = -M_PI_2;
+    // }
+    // if (theta_end > M_PI_2) {
+    //     theta_end = M_PI_2;
+    // } else if (theta_end < -M_PI_2) {
+    //     theta_end = -M_PI_2;
+    // }
+
+    // std::cout << "s_start: " << s_start << " s_end: " << s_end << std::endl;
 
     double csi = heading - theta_start;
+    std::cout << "heading: " << heading << " theta_start: " << theta_start << std::endl;
     // std::cout << "cp.t : " << cp.t << " theta: " << theta << std::endl;
     // std::cout << "Imbardata totale: " << heading << " Imbardata teta(s): " << theta << " Csi: " << csi << std::endl;
-    center_spline.build_G1(x, y, theta_start , center_point.x, center_point.y, theta_end);
+    double actual_heading = atan2(u * sin(heading) + v * cos(heading), u * cos(heading) - v * sin(heading));
+    center_spline.build_G1(x, y, actual_heading, center_point.x, center_point.y, theta_end);
 
     // spline_direction_1.build_G1(x, y, heading, direction_1.x, direction_1.y, theta_l);
     // spline_direction_2.build_G1(x, y, heading, direction_2.x, direction_2.y, theta_l);
     // spline_direction_3.build_G1(x, y, heading, direction_3.x, direction_3.y, theta_l);
     // spline_direction_4.build_G1(x, y, heading, direction_4.x, direction_4.y, theta_l);
 
-    double rho = csi + center_spline.dkappa() * center_spline.length();
+    double rho = center_spline.kappa_begin() + center_spline.dkappa() * center_spline.length();
+
+    // std::cout << "csi: " << csi * RAD2DEG << " theta_start: " << theta_start * RAD2DEG << " theta_end: " << theta_end * RAD2DEG << "dkappa: " << center_spline.dkappa() * RAD2DEG << std::endl;
+    // std::cout << "kappa : " << center_spline.kappa_begin() << std::endl;
+    // std::cout << "rho: " << rho << " u: " << u << std::endl;
 
     double ay = rho * std::pow(u, 2);
 
     // double K_us = 500; // TODO: tuning
-    double K_us = 250 * u;
+    double K_us = 10.0;
 
     ClosestPoint cp_left;
     center_spline.closest_point_ISO(x, y, cp_left.x, cp_left.y, cp_left.s, cp_left.t, cp_left.dst);
     ClosestPoint cp_right;
-    spline_r.closest_point_ISO(x, y, cp_right.x, cp_right.y, cp_right.s, cp_right.t, cp_right.dst);
+    spline_l.closest_point_ISO(x, y, cp_right.x, cp_right.y, cp_right.s, cp_right.t, cp_right.dst);
 
     double cp_distance_x = (cp_left.x + cp_right.x) / 2.0;
     double cp_distance_y = (cp_left.y + cp_right.y) / 2.0;
 
     double akermann_angle = rho * L + K_us * ay + 0.0 * std::sqrt(cp_distance_x * cp_distance_x + cp_distance_y * cp_distance_y);
+    // std::cout << "Steering angle: " << akermann_angle * RAD2DEG<< " rho: " << rho << " dkappa: " << center_spline.dkappa() << std::endl;
 
-
-    if (akermann_angle > 90.0) akermann_angle = 90.0;
-    else if (akermann_angle < -90.0) akermann_angle = -90.0;
+    if (akermann_angle > M_PI_2) {
+        akermann_angle = M_PI_2;
+    } else if (akermann_angle < -M_PI_2) {
+        akermann_angle = -M_PI_2;
+    }
     // akermann_angle = 5* center_spline.dkappa() * RAD2DEG;
-
-    return akermann_angle;
+    // std::cout << "akermann_angle: " << akermann_angle * RAD2DEG << std::endl;
+    return akermann_angle * RAD2DEG;
 }
 
 void handleTrajectory(Communication& communication, const TelemetryData& telemetryData, PID& pid, double& speed) {
     communication.sendData(currentDesiredSpeed, getTimestampMicroseconds());
-    static double shiftFactorX = 0.0;
-    static double shiftFactorY = 0.0;
-    if (resetTelemetry && isVehicleStateReceived) {
-        shiftFactorX = telemetryData.vehicleState.x;
-        shiftFactorY = telemetryData.vehicleState.y;
-        resetTelemetry = false;
-    }
-    double pos_x = telemetryData.vehicleState.x - shiftFactorX;
-    double pos_y = telemetryData.vehicleState.y - shiftFactorY;
+    // static double shiftFactorX = 0.0;
+    // static double shiftFactorY = 0.0;
+    // if (resetTelemetry && isVehicleStateReceived) {
+    //     shiftFactorX = telemetryData.vehicleState.x;
+    //     shiftFactorY = telemetryData.vehicleState.y;
+    //     resetTelemetry = false;
+    // }
+    // double pos_x = telemetryData.vehicleState.x - shiftFactorX;
+    // double pos_y = telemetryData.vehicleState.y - shiftFactorY;
+    double pos_x = telemetryData.vehicleState.x;
+    double pos_y = telemetryData.vehicleState.y;
     
     // Make look-ahead distance velocity-dependent
     double velocity = telemetryData.vehicleState.u;
@@ -478,7 +502,7 @@ void handleTrajectory(Communication& communication, const TelemetryData& telemet
     auto now = std::chrono::steady_clock::now();
     if (std::chrono::duration_cast<std::chrono::milliseconds>(now - last_update).count() >= 1) {
         double output = computeSteeringAngleClothoids(pos_x, pos_y, telemetryData.vehicleState.heading, 
-                                                        look_ahead_distance, telemetryData.vehicleState.u);
+                                                        look_ahead_distance, telemetryData.vehicleState.u, telemetryData.vehicleState.v);
         delta = output;
         last_update = now;
     }

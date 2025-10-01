@@ -189,7 +189,7 @@ void Communication::setInitialState() {
   initialState.y = 0.0;
   initialState.u = 0.0;
   initialState.v = 0.0;
-  initialState.heading = M_PI / 2.0;
+  initialState.heading = 0.0;
 
   // Send initial state to the simulator
   this->connection.send(
@@ -236,8 +236,8 @@ void Communication::sendData(double currentDesiredSpeed, double timestamp) {
 MQTTTopics::TopicMessage Communication::getVehicleStateTopic(SimulationType mode) {
   switch (mode) {
     case SimulationType::SIMULATOR:
-      // return MQTTTopics::GetTopicExtraTlmDataVehicleState(this->vehicleId, "onboard");
-      return MQTTTopics::GetTopicSimulatorOutputs(this->vehicleId);
+      return MQTTTopics::GetTopicExtraTlmDataVehicleState(this->vehicleId, "onboard");
+      // return MQTTTopics::GetTopicSimulatorOutputs(this->vehicleId);
     case SimulationType::ONBOARD:
     default:
       return MQTTTopics::GetTopicExtraTlmDataVehicleState(this->vehicleId, "onboard");

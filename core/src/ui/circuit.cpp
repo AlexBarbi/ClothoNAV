@@ -18,11 +18,11 @@ void circuit(const std::string cones_csv, const TelemetryData &telemetryData,
   static double shiftFactorX = 0.0;
   static double shiftFactorY = 0.0;
   
-  if (resetTelemetry && isVehicleStateReceived) {
-    shiftFactorX = telemetryData.vehicleState.x;
-    shiftFactorY = telemetryData.vehicleState.y;
-    resetTelemetry = false;
-  }
+  // if (resetTelemetry && isVehicleStateReceived) {
+  //   shiftFactorX = telemetryData.vehicleState.x;
+  //   shiftFactorY = telemetryData.vehicleState.y;
+  //   resetTelemetry = false;
+  // }
 
   // Calcola la media delle coordinate x e y dei samplePoints
   double meanSampleX = 0.0;
@@ -169,7 +169,7 @@ void circuit(const std::string cones_csv, const TelemetryData &telemetryData,
     
   }
   if (IsKeyPressed(KEY_B)) {
-    useTrajectory = false;
+    // useTrajectory = false;
     communication.sendVehicleCommands(0.0, 0.0);
   }
 

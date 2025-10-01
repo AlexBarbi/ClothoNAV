@@ -45,7 +45,7 @@ bool mustSwitchController = true;
 std::string message_lat;
 std::vector<Eigen::Vector2d> left_cones, right_cones;
 std::vector<ConePair> cone_pairs;
-std::string cones_csv = "cones2.csv";
+std::string cones_csv = "racetrack_cones_long.csv";
 std::vector<CenterlinePoint> centerline;
 ClothoidList clothoidList;
 std::vector<Point> samplePoints;
